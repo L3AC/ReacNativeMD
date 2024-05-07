@@ -9,7 +9,7 @@ import Calculadora from './src/screens/Calculadora';
 
 const Stack = createStackNavigator();
  
-export default function App() {
+export default function App() { 
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="ToDoList">
