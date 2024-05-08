@@ -4,63 +4,27 @@ import {
   Text,
   TextInput,
   Button,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
   Modal,
+  TouchableOpacity,
+  FlatList,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { AntDesign } from '@expo/vector-icons';
 
 const App = () => {
   const [nombre, setNombre] = useState('');
-  const [cantidad, setCantidad] = useState('');
-  const [fechaReserva, setFechaReserva] = useState(new Date());
-  const [clientes, setClientes] = useState([]);
+  const [carnet, setCarnet] = useState('');
+  const [materiaFavorita, setMateriaFavorita] = useState('');
+  const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
+  const [alumnos, setAlumnos] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-
   const [date, setDate] = useState(new Date());
   const [mode, setMode] = useState('date');
   const [show, setShow] = useState(false);
 
-  const findHighestId = () => {
-    let highestId = 0;
-    clientes.forEach((cliente) => {
-      if (cliente.id > highestId) {
-        highestId = cliente.id;
-      }
-    });
-    return highestId;
-  };
-  
-
-  const agregarCliente = () => {
-    const nuevoCliente = {
-      id: findHighestId() + 1, // Asigna el ID más alto encontrado más uno
-      nombre: nombre,
-      fechaReserva: fechaReserva,
-      cantidad: cantidad,
-    };
-    setClientes([...clientes, nuevoCliente]);
-    setNombre('');
-    setFechaReserva(new Date());
-    setCantidad('');
-    setModalVisible(false);
-  };
-  
-
-  const eliminarCliente = (id) => {
-    // Elimina al cliente con el ID dado
-    setClientes((prevClientes) =>
-      prevClientes.filter((cliente) => cliente.id !== id)
-    );
-  };
-  
-
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShow(false);
-    setFechaReserva(currentDate);
+    setFechaNacimiento(currentDate);
   };
 
   const showMode = (currentMode) => {
@@ -68,74 +32,94 @@ const App = () => {
     setMode(currentMode);
   };
 
-  const showDatepicker = () => {
+  const showDatePicker = () => {
     showMode('date');
+  };
+
+  const agregarAlumno = () => {
+    const nuevoAlumno = {
+      id: alumnos.length + 1,
+      nombre: nombre,
+      carnet: carnet,
+      materiaFavorita: materiaFavorita,
+      fechaNacimiento: fechaNacimiento,
+    };
+    setAlumnos([...alumnos, nuevoAlumno]);
+    setNombre('');
+    setCarnet('');
+    setMateriaFavorita('');
+    setFechaNacimiento(new Date());
+    setModalVisible(false);
+  };
+
+  const eliminarAlumno = (id) => {
+    setAlumnos(alumnos.filter((alumno) => alumno.id !== id));
   };
 
   return (
     <View style={styles.container}>
-      <Button title="Agregar Cliente" onPress={() => setModalVisible(true)} />
+      <Button title="Agregar Alumno" onPress={() => setModalVisible(true)} />
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => {
-          setModalVisible(false);
-        }}
-      >
+          setModalVisible(!modalVisible);
+        }}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <TextInput
               style={styles.input}
-              placeholder="Nombre del Cliente"
+              placeholder="Nombre del Alumno"
               value={nombre}
               onChangeText={setNombre}
             />
-            <TouchableOpacity onPress={showDatepicker}>
-              <Text>Seleccionar fecha de Reserva</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Carnet del Alumno"
+              value={carnet}
+              onChangeText={setCarnet}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Materia Favorita"
+              value={materiaFavorita}
+              onChangeText={setMateriaFavorita}
+            />
+            <TouchableOpacity onPress={showDatePicker}>
+              <Text>Seleccionar Fecha de Nacimiento</Text>
             </TouchableOpacity>
-            <Text>Seleccionada: {fechaReserva.toDateString()}</Text>
+            <Text>Fecha de Nacimiento: {fechaNacimiento.toLocaleDateString()}</Text>
             {show && (
               <DateTimePicker
                 testID="dateTimePicker"
                 value={date}
                 mode={mode}
-                is24Hour={false}
+                is24Hour={true}
                 display="default"
                 onChange={onChange}
+                locale='es-ES'
               />
             )}
-            <TextInput
-              style={styles.input}
-              placeholder="Cantidad"
-              value={cantidad}
-              onChangeText={setCantidad}
-              keyboardType="numeric"
+            <Button title="Agregar Alumno" onPress={agregarAlumno} />
+            <Button
+              title="Cancelar"
+              onPress={() => setModalVisible(false)}
+              color="red"
             />
-            <Button title="Agregar Cliente" onPress={agregarCliente} />
-            <Button title="Cancelar" onPress={() => setModalVisible(false)} color="red" />
           </View>
         </View>
       </Modal>
       <FlatList
-        data={clientes}
+        data={alumnos}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.clienteItem}
-          >
-            <Text style={styles.clienteNombre}>ID: {item.id}</Text>
-            <Text style={styles.clienteNombre}>Nombre: {item.nombre}</Text>
-            <Text style={styles.clienteNombre}>Cantidad: {item.cantidad}</Text>
-            <Text style={styles.clienteFecha}>
-              Fecha de Reserva: {item.fechaReserva.toDateString()}
-            </Text>
-            <AntDesign
-              name="close"
-              size={24}
-              color="black"
-              style={{ position: 'absolute', right: 10, top: 10 }}
-              onPress={() => eliminarCliente(item.id)}
-            />
+            style={styles.alumnoItem}
+            onPress={() => eliminarAlumno(item.id)}>
+            <Text style={styles.alumnoNombre}>{item.nombre}</Text>
+            <Text style={styles.alumnoInfo}>Carnet: {item.carnet}</Text>
+            <Text style={styles.alumnoInfo}>Materia Favorita: {item.materiaFavorita}</Text>
+            <Text style={styles.alumnoInfo}>Fecha de Nacimiento: {item.fechaNacimiento.toLocaleDateString()}</Text>
           </TouchableOpacity>
         )}
         keyExtractor={(item) => item.id.toString()}
@@ -144,12 +128,49 @@ const App = () => {
   );
 };
 
-const styles = StyleSheet.create({
+export default App;
+
+const styles = {
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    elevation: 5,
+  },
+  input: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  alumnoItem: {
+    borderBottomWidth: 1,
+    borderBottomColor: 'lightgray',
+    paddingVertical: 10,
+  },
+  alumnoNombre: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  alumnoInfo: {
+    fontSize: 14,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
     padding: 20,
   },
   modalContainer: {
@@ -176,8 +197,7 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 10,
     borderRadius: 5,
-    marginTop: 5,
-    position: 'relative',
+    marginTop: 5
   },
   clienteNombre: {
     fontSize: 18,
@@ -186,6 +206,4 @@ const styles = StyleSheet.create({
   clienteFecha: {
     fontSize: 16,
   },
-});
-
-export default App;
+};
