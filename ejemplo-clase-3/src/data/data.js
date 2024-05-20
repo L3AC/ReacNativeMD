@@ -4,7 +4,7 @@ const Data = [
       title: 'Pupusas',
       src: require('../img/pupusas-comida.jpg'),
     },
-    {
+    { 
       id: '2',
       title: 'Atol de Elote',
       src: require('../img/atol-bebida.jpg'),
